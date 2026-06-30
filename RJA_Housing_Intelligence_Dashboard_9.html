@@ -1,0 +1,559 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RJA Student Housing Intelligence</title>
+<style>
+:root{
+  --slate:#343E48; --slate-2:#2E3740; --slate-3:#262E36; --slate-line:#3F4A55;
+  --ink:#2B333B; --ink-2:#677078; --line:#E4E7EA; --line-2:#CDD3D8;
+  --paper:#FFFFFF; --paper-2:#F6F7F8;
+  --rja:#343E48; --rja-dark:#2E3740; --rja-soft:#EAECEE;
+  --teal:#56616B; --teal-mid:#7C858E; --blue:#A7AFB6;
+  --accent:#343E48; --accent-soft:#E8EAEC;
+  --bad:#8A9098; --good:#343E48; --bench:#AEB5BB;
+
+  --c1:#3E7CB1; --c2:#3C9D7E; --c3:#D98A47; --c4:#7B6CA8; --c5:#C25B58; --c6:#D4B25A; --c7:#3FA7A0;
+  --pos:#3C9D7E; --neg:#C25B58; --hi:#3E7CB1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Helvetica Neue",-apple-system,Arial,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper-2);
+  line-height:1.5;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;letter-spacing:-0.003em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+a{color:var(--rja-dark)}
+
+/* Masthead with RJA wordmark */
+header{background:var(--slate);color:#fff}.logo{display:flex;align-items:center;gap:13px}.rja-img{height:42px;width:auto;display:block;padding-right:14px;border-right:1px solid var(--slate-line)}.logo .txt b{font-size:16px;font-weight:600;letter-spacing:.2em;display:block;color:#fff}.logo .txt span{font-size:10px;color:#A7AFB6;letter-spacing:.18em;text-transform:uppercase;margin-top:3px;display:block}
+.mast{display:flex;align-items:center;justify-content:space-between;max-width:1180px;margin:0 auto;padding:18px 24px;flex-wrap:wrap;gap:14px}
+
+
+
+
+
+
+.mast .tag{font-size:12px;color:#A7AFB6;text-align:right;max-width:360px}
+.mast .tag b{color:#fff;font-weight:600}
+
+/* sub-band facts */
+.facts-band{background:var(--slate-2);border-top:1px solid var(--slate-line);color:#fff}
+.facts{display:flex;gap:0;max-width:1180px;margin:0 auto;flex-wrap:wrap}
+.fact{flex:1;min-width:130px;padding:14px 24px;border-right:1px solid var(--slate-line)}
+.fact:last-child{border-right:none}
+.fact .n{font-size:22px;font-weight:700;color:#FFFFFF}
+.fact .l{font-size:10.5px;color:#A7AFB6;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+/* controls */
+.controls{background:var(--paper);border-bottom:1px solid var(--line-2);position:sticky;top:0;z-index:30}
+.cinner{display:flex;gap:18px;align-items:flex-end;max-width:1180px;margin:0 auto;padding:13px 24px;flex-wrap:wrap}
+.ctl label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);font-weight:700;margin-bottom:3px}
+.ctl select,.ctl input{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--line-2);background:var(--paper);color:var(--ink);min-width:200px}
+.ctl select:focus,.ctl input:focus{outline:2px solid var(--rja);outline-offset:-1px}
+.ctl.grow{flex:1;min-width:220px}
+.ctl.grow input{width:100%}
+
+section{padding:34px 0 4px}
+.eyebrow{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--slate);padding-bottom:8px;margin-bottom:20px}
+.eyebrow .k{font-size:11px;font-weight:800;color:#3E7CB1;letter-spacing:.1em}
+.eyebrow h2{font-size:18px;font-weight:700;letter-spacing:-0.01em}
+.eyebrow .note{font-size:12px;color:var(--ink-2);margin-left:auto;text-align:right}
+
+/* metric tabs */
+.tabs{display:flex;border:1px solid var(--line-2);width:fit-content;margin-bottom:16px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:12.5px;font-weight:600;padding:8px 15px;border:none;background:var(--paper);color:var(--ink-2);cursor:pointer;border-right:1px solid var(--line-2)}
+.tabs button:last-child{border-right:none}
+.tabs button.on{background:var(--rja);color:#fff}
+
+.benchline{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-2);margin-bottom:12px}
+.benchline .sw{width:18px;border-top:2px dashed var(--bench)}
+
+/* ranked bars */
+.bar-row{display:grid;grid-template-columns:228px 1fr 92px;align-items:center;gap:14px;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.bar-row:hover{background:var(--rja-soft)}
+.bar-name{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-name .st{color:var(--ink-2);font-size:11px}
+.bar-track{position:relative;height:18px;background:var(--paper-2)}
+.bar-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#3E7CB1,#5B97C9);transition:width .5s cubic-bezier(.22,.61,.36,1)}
+.bar-val{font-size:12.5px;font-weight:700;text-align:right;display:flex;justify-content:flex-end;align-items:center;gap:5px}
+.flag{font-size:10px;padding:1px 5px;border:1px solid var(--line-2)}
+.flag.up{color:var(--pos);border-color:#cfe6dd;background:#eef7f3}.flag.dn{color:var(--neg);border-color:#ecd2d1;background:#faefef}
+
+/* grid + cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px}
+.card{background:var(--paper);border:1px solid var(--line);padding:17px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:var(--slate);box-shadow:0 2px 0 var(--slate)}
+.card h3{font-size:13.5px;font-weight:700}
+.card .csub{font-size:11.5px;color:var(--ink-2);margin:2px 0 13px}
+.stack{display:flex;height:16px;border:1px solid var(--line);overflow:hidden}
+.seg{height:100%}
+.s0{background:#C25B58}.s1{background:#D98A47}.s2{background:#D4B25A}.s3{background:#7FB59E}.s4{background:#3C9D7E}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:10.5px;color:var(--ink-2);margin-top:7px}
+.legend span{display:flex;align-items:center;gap:5px}.legend i{width:10px;height:10px;display:inline-block}
+
+/* cut cards */
+.cutg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.cut{background:var(--paper);border:1px solid var(--line);padding:15px}
+.cut h4{font-size:12.5px;font-weight:700;margin-bottom:11px;display:flex;justify-content:space-between}
+.cut h4 span{font-size:10px;color:var(--ink-2);font-weight:400}
+.crow{display:grid;grid-template-columns:118px 1fr 34px;align-items:center;gap:8px;margin-bottom:6px}
+.crow .cn{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .ct{height:13px;background:var(--paper-2);position:relative}
+.crow .cf{position:absolute;left:0;top:0;height:100%;background:#3FA7A0}
+.crow .cv{font-size:11.5px;font-weight:700;text-align:right}
+
+svg{display:block;width:100%;height:auto;font-family:inherit}
+.panel{background:var(--paper);border:1px solid var(--line);padding:18px}
+.gridline{stroke:var(--line)}
+.axis text,.axlab{fill:var(--ink-2);font-size:11px}
+.axtitle{fill:var(--ink-2);font-size:11px;font-weight:600}
+.ptlab{font-size:10px;fill:var(--ink-2);font-weight:600}
+.dot{fill:#7B6CA8;opacity:.8;cursor:pointer}.dot:hover{opacity:1}
+.tline{fill:none;stroke:#3E7CB1;stroke-width:2.5}.tdot{fill:#3E7CB1}.tarea{fill:#eaf1f7}
+.dotlabel{font-size:10px;fill:var(--ink-2)}
+.chart-foot{font-size:11.5px;color:var(--ink-2);margin-top:10px;font-style:italic}
+.panel svg{max-height:340px}
+
+/* deep-dive modal */
+.overlay{position:fixed;inset:0;background:rgba(20,18,15,.55);z-index:60;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+.overlay.open{display:flex}
+.modal{background:var(--paper);max-width:920px;width:100%;border-top:4px solid var(--slate)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 24px;border-bottom:1px solid var(--line)}
+.modal-head h2{font-size:19px;font-weight:700}
+.modal-head .sub{font-size:12px;color:var(--ink-2);margin-top:3px}
+.modal-head .x{font-size:24px;line-height:1;background:none;border:none;cursor:pointer;color:var(--ink-2)}
+.modal-body{padding:22px 24px 28px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:22px}
+.kpi{background:var(--paper);padding:13px 15px}
+.kpi .n{font-size:19px;font-weight:700;color:#3E7CB1}
+.kpi .n.muted{color:var(--slate)}
+.kpi .l{font-size:10px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.dd-block h4{font-size:12.5px;font-weight:700;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.takeaway{background:#eef3f8;border-left:3px solid #3E7CB1;padding:12px 14px;font-size:12.5px;margin-bottom:20px}
+.takeaway b{color:#3E7CB1}
+.minibar{display:grid;grid-template-columns:110px 1fr 32px;align-items:center;gap:7px;margin-bottom:5px}
+.minibar .mn{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minibar .mt{height:12px;background:var(--paper-2);position:relative}
+.minibar .mf{position:absolute;left:0;top:0;height:100%}
+.minibar .mv{font-size:11px;font-weight:700;text-align:right}
+
+
+/* Compare schools */
+.cmp-controls{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.cmp-controls select{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--line-2);background:var(--paper);min-width:240px}
+.cmp-controls select:focus{outline:2px solid var(--c1);outline-offset:-1px}
+.cmp-clear{font:inherit;font-size:12px;padding:7px 13px;border:1px solid var(--line-2);background:var(--paper);cursor:pointer;color:var(--ink-2)}
+.cmp-clear:hover{border-color:var(--neg);color:var(--neg)}
+.cmp-hint{font-size:12px;color:var(--ink-2)}
+.cmp-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{display:flex;align-items:center;gap:8px;padding:5px 8px 5px 11px;border:1px solid var(--line-2);font-size:12.5px;background:var(--paper)}
+.chip .dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.chip button{border:none;background:none;cursor:pointer;font-size:15px;line-height:1;color:var(--ink-2);padding:0 2px}
+.chip button:hover{color:var(--neg)}
+.cmp-empty{padding:30px;text-align:center;color:var(--ink-2);border:1px dashed var(--line-2)}
+.cmp-metric{margin-bottom:22px}
+.cmp-metric h4{font-size:12.5px;font-weight:700;margin-bottom:9px;display:flex;justify-content:space-between}
+.cmp-metric h4 span{font-size:10.5px;color:var(--ink-2);font-weight:400}
+.cmp-bar{display:grid;grid-template-columns:170px 1fr 70px;align-items:center;gap:12px;margin-bottom:6px}
+.cmp-bar .nm{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp-bar .tk{height:16px;background:var(--paper-2);position:relative}
+.cmp-bar .fl{position:absolute;left:0;top:0;height:100%;transition:width .4s}
+.cmp-bar .vl{font-size:12px;font-weight:700;text-align:right}
+.cmp-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px;overflow-x:auto;display:block}
+.cmp-table th,.cmp-table td{border:1px solid var(--line);padding:8px 10px;text-align:right;white-space:nowrap}
+.cmp-table th:first-child,.cmp-table td:first-child{text-align:left;font-weight:600;position:sticky;left:0;background:var(--paper)}
+.cmp-table thead th{background:var(--slate);color:#fff;font-weight:600}
+.cmp-table tbody tr:nth-child(even){background:var(--paper-2)}
+.cmp-best{color:var(--pos);font-weight:700}
+
+
+.cmp-insight{background:#eef3f8;border-left:3px solid #3E7CB1;padding:11px 14px;font-size:13px;margin-bottom:20px}
+.cmp-insight b{color:#3E7CB1}
+.cmp-sub{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.cmp-sub h4{font-size:13px;font-weight:700;margin-bottom:12px}
+.cmp-dist-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.cmp-dist-lbl{display:flex;align-items:center;gap:7px;font-size:12px;margin-bottom:4px}
+.cmp-dist-lbl .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.cmp-dist-lbl b{margin-left:auto;font-weight:700;color:var(--ink-2)}
+.cmp-note{font-size:11.5px;color:var(--ink-2);margin-top:8px;font-style:italic}
+
+
+.cmp-trend-leg{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-2);margin-bottom:10px}
+.cmp-trend-leg span{display:flex;align-items:center;gap:6px}
+.cmp-trend-leg i{width:11px;height:11px;border-radius:50%;display:inline-block}
+
+footer{padding:30px 0 50px;color:var(--ink-2);font-size:11.5px;border-top:1px solid var(--line);margin-top:28px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.tooltip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-size:11.5px;padding:6px 9px;border-radius:2px;opacity:0;transition:opacity .12s;z-index:80;max-width:230px;line-height:1.35}
+.empty{padding:36px;text-align:center;color:var(--ink-2)}
+@media(max-width:680px){.bar-row{grid-template-columns:120px 1fr 70px;gap:8px}.dd-grid{grid-template-columns:1fr}.crow{grid-template-columns:84px 1fr 30px}}
+</style></head><body>
+<header><div class="mast">
+  <div class="logo"><img class="rja-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA0CAYAAAAddL/hAAAD7UlEQVR4nO2aTYhOURjHfy/KZ0OMMgmFGhFTFppYKcooNr4WaIoNYSEpWfja2FhQyIbUSDRSShQpC8ywYCjju2gaJo0FM+Mr41rcwXXmmXvP133f++r+6jad597nPOf9zznnnvucUwiCgBx7BpW6AeVOLqAjuYCO5AI6kgvoyBBH/2HAKB8NAbqAb5FypXK/Uymr9+OeTY8gCEyv9UEQ3A/8cyQSo0K4H23D1oS6mgLz32V1mfTARcD1tP6RnqkFaoCHaQfSFbCX8psvW4BC2kF0BLxGvHitlrFnWvoB/BigHWqdjcAqhziJJAlYDywW7LXAXcfYV4Ellr5qz3oPzCJsV1PEvhKYDry0jJNIkoCnBdsooMdD7F4H38FK+fcIaQbagYmRey9IcSjHDc0xgq0aP+KlyVTBdjStYHECzhNszz3GVnuRL77Tf97bAkxII1icgNOUcpvn2C5DOIkLgu1dGoHiBLynlCd5jp1WD/yN9IW0x3eQOAGl4TrSY+yfHuuS6AF2Krb9wDifQeIE7BJs3UWK7YtDgs3rd3LSj9gt2ALkN11WqRJsm31VnrQOPAjsAioU+6u+vyeAW5axbRfR0P8FVAmsNfA/DjTgYUTpfMqNJux1Epv6rmIjvYDOGNbRhYcFtu48VAD2ugbLIGtcKzCZyA/w7yfS/8A5wqSwNaYZ6bf87fZjgQ/CM1XI2RKVFuz/IVL94zX8CoSJhyhtmr4iLin9bYKtBujQ9H+KvYBquzvRX55UA88i5UqgjjA7ZIztWqwC2KfYWoFHlvUVk+fAHcV2xbYyWwE/CrZZto0oAQsE2xObimwErBdsy2yCl5ilSnkGMN+0ElMBhyEnWS+bBs4A0px327QSUwGlt66vfeFSILW9SbANiImAi4ARim072c9QxyFlbGqB2boVmAgo7QkfNvDPKlLGRns1oSug1K2lLEe5Iv2WBh1HHQHnEHbrKKfQXzCXAx3ARcW2Dpic5KgjoHQ8YqOGX7mxQrC9SXJKEvCkYJur1ZzyZKFgk+bIP8QJOAHYoNhagQeajRkPPI5czZp+AMMNnvXJTfonWXcQsyVaCNI7pT8c+KzYhhLu2yaxHLik2FI/KBRBPXvYDXyVHkxzY+eLYJPmGYnzSvmUY1tM6VQuUTxIf2esXSmfJXlD6hj9k5yqoJkhzSEM4dwhnQhoJHyTR7dOpwCvB6inmMPXiLQFhDDDEfeR3kn8eWfdebMkFGNz+w6wOuZ+nHiVZFg8KN6x3UbCt7K6HzEQ+wiHrZT9yRTFGMIq8wh7ZB3/Hsm90XcdAz4Vu1G2lELA/4pyO3mfOXIBHckFdCQX0JFcQEd+AVACrF/ax4dqAAAAAElFTkSuQmCC" alt="RJA"/><div class="txt"><b>RIETH&nbsp;JONES</b><span>Advisors&nbsp;·&nbsp;Housing Intelligence</span></div></div>
+  <div class="tag">Cross-institution survey analysis across <b>19 universities</b>. Pick any school for a full deep dive.</div>
+</div></header>
+<div class="facts-band"><div class="facts" id="facts"></div></div>
+<div class="controls"><div class="cinner">
+  <div class="ctl"><label for="schoolPick">Open a school deep dive</label>
+    <select id="schoolPick"><option value="">Choose a school…</option></select></div>
+  <div class="ctl"><label for="stateFilter">Filter by state</label><select id="stateFilter"><option value="">All states</option></select></div>
+  <div class="ctl"><label for="minN">Minimum responses</label><select id="minN"><option value="0">No minimum</option><option value="100">100+</option><option value="500">500+</option><option value="1000">1,000+</option></select></div>
+  <div class="ctl grow"><label for="schoolSearch">Search schools</label><input id="schoolSearch" type="text" placeholder="Type a school name…" autocomplete="off"></div>
+</div></div>
+<main class="wrap">
+  <section><div class="eyebrow"><span class="k">01</span><h2>How schools rank</h2><span class="note" id="rankNote"></span></div>
+    <div class="tabs" id="tabs"><button data-m="avg_living" class="on">Living satisfaction</button><button data-m="avg_phys">Physical condition</button><button data-m="avg_rent">Rent + utilities</button><button data-m="pct_oncampus">% on campus</button></div>
+    <div class="benchline" id="benchline"><span class="sw"></span><span id="benchText"></span></div>
+    <div id="rankChart"></div><div class="chart-foot">Schools flagged <em>low sample</em> have fewer than 100 rated responses, so their averages are less stable and may rank higher or lower than a larger sample would support.</div></section>
+  <section id="compareSec"><div class="eyebrow"><span class="k">02</span><h2>Compare schools head to head</h2><span class="note">Pick 2 to 6 schools to line them up</span></div>
+  <div class="cmp-controls">
+    <select id="cmpAdd"><option value="">+ Add a school to compare…</option></select>
+    <button id="cmpClear" class="cmp-clear">Clear all</button>
+    <span class="cmp-hint" id="cmpHint">Add schools to build a side by side comparison.</span>
+  </div>
+  <div id="cmpChips" class="cmp-chips"></div>
+  <div id="cmpBody" class="cmp-body"></div>
+</section>
+<section><div class="eyebrow"><span class="k">03</span><h2>Living-situation rating breakdown</h2><span class="note">Share of responses at each rating · "How would you rate your current living situation?"</span></div><div class="grid" id="distGrid"></div></section>
+  <section><div class="eyebrow"><span class="k">04</span><h2>What moves satisfaction</h2><span class="note">Avg living rating by group · all schools</span></div><div class="cutg" id="cutGrid"></div></section>
+  <section><div class="eyebrow"><span class="k">05</span><h2>Rent versus living-situation rating</h2><span class="note">Each point is one school · monthly rent + utilities vs. average rating</span></div><div class="panel" id="scatterPanel"></div></section>
+  <section><div class="eyebrow"><span class="k">06</span><h2>Living-situation rating by year</h2><span class="note">Average rating across all schools, by survey year</span></div><div class="panel" id="trendPanel"></div><div class="chart-foot">Each year reflects a different mix of responding institutions. Use as a directional industry benchmark rather than a like-for-like time series.</div></section>
+  <section><div class="eyebrow"><span class="k">07</span><h2>Rent + utilities by year</h2><span class="note">Average monthly rent + utilities across all schools, by survey year</span></div><div class="panel" id="rentTrendPanel"></div><div class="chart-foot">Year-over-year movement reflects shifts in which institutions were surveyed each year, not a single market trend. Read it as a directional benchmark, not a same-store rent index.</div></section>
+</main>
+<footer><div class="wrap"><span id="footMeta"></span><span>© 2026 Rieth Jones Advisors · Built on the cleaned RJA Housing Database</span></div></footer>
+
+<div class="overlay" id="overlay"><div class="modal">
+  <div class="modal-head"><div><h2 id="ddTitle"></h2><div class="sub" id="ddSub"></div></div><button class="x" id="ddClose">×</button></div>
+  <div class="modal-body">
+    <div class="kpis" id="ddKpis"></div>
+    <div class="takeaway" id="ddTake"></div>
+    <div class="dd-grid">
+      <div class="dd-block"><h4>Satisfaction by building condition</h4><div id="ddPhys"></div></div>
+      <div class="dd-block"><h4>On campus vs off campus</h4><div id="ddOnOff"></div></div>
+      <div class="dd-block"><h4>By student type</h4><div id="ddClass"></div></div>
+      <div class="dd-block"><h4>By rent band</h4><div id="ddRent"></div></div>
+      <div class="dd-block" style="grid-column:1/-1"><h4>Satisfaction over time</h4><div id="ddTrend"></div></div>
+    </div>
+  </div>
+</div></div>
+<div class="tooltip" id="tip"></div>
+<script>
+const DATA={"schools":[{"name":"Clark University","state":"MA","n_total":841,"n_rated":838,"avg_living":3.66,"avg_phys":3.56,"avg_rent":628.71,"avg_commute":null,"pct_oncampus":69.08,"years":[2023],"living_dist":[16,99,188,389,146],"phys_dist":[18,109,225,359,126],"safety_dist":[0,0,0,0]},{"name":"Colorado School of Mines","state":"CO","n_total":2650,"n_rated":1034,"avg_living":4.05,"avg_phys":null,"avg_rent":702.36,"avg_commute":13.45,"pct_oncampus":39.43,"years":[2020,2021],"living_dist":[5,32,203,465,329],"phys_dist":[0,0,0,0,0],"safety_dist":[0,0,0,0]},{"name":"Duquesne Unviersity","state":"PA","n_total":1652,"n_rated":1648,"avg_living":3.85,"avg_phys":3.85,"avg_rent":736.66,"avg_commute":19.07,"pct_oncampus":62.11,"years":[2021],"living_dist":[18,166,318,690,456],"phys_dist":[13,173,324,681,458],"safety_dist":[0,0,0,0]},{"name":"East Carolina University - Coastal Studies Institute","state":"NC","n_total":59,"n_rated":33,"avg_living":4.55,"avg_phys":null,"avg_rent":829.71,"avg_commute":null,"pct_oncampus":16.95,"years":[2022],"living_dist":[0,2,0,9,22],"phys_dist":[0,0,0,0,0],"safety_dist":[0,0,0,0]},{"name":"East Carolina University - Greenville","state":"NC","n_total":1008,"n_rated":998,"avg_living":3.81,"avg_phys":3.78,"avg_rent":771.93,"avg_commute":null,"pct_oncampus":44.64,"years":[2022],"living_dist":[23,104,204,375,292],"phys_dist":[16,114,218,376,274],"safety_dist":[0,0,0,0]},{"name":"Eastern Michigan University","state":"MI","n_total":3709,"n_rated":3580,"avg_living":3.86,"avg_phys":3.71,"avg_rent":653.88,"avg_commute":23.9,"pct_oncampus":35.67,"years":[2018,2022],"living_dist":[37,270,881,1359,1033],"phys_dist":[29,220,305,515,410],"safety_dist":[39,291,2641,698]},{"name":"Elizabeth City State Unviersity","state":"NC","n_total":651,"n_rated":394,"avg_living":3.43,"avg_phys":3.53,"avg_rent":770.21,"avg_commute":36.63,"pct_oncampus":83.72,"years":[2019,2022],"living_dist":[8,83,112,113,78],"phys_dist":[6,80,93,128,87],"safety_dist":[1,15,279,98]},{"name":"Lake Superior State University","state":"MI","n_total":621,"n_rated":615,"avg_living":3.63,"avg_phys":null,"avg_rent":394.19,"avg_commute":null,"pct_oncampus":61.84,"years":[2018],"living_dist":[13,57,210,200,135],"phys_dist":[0,0,0,0,0],"safety_dist":[0,0,0,0]},{"name":"Mississippi State University","state":"MS","n_total":1648,"n_rated":1643,"avg_living":3.95,"avg_phys":3.88,"avg_rent":553.31,"avg_commute":11.47,"pct_oncampus":49.94,"years":[2021],"living_dist":[18,129,292,686,518],"phys_dist":[9,163,314,685,472],"safety_dist":[0,0,0,0]},{"name":"North Carolina Central University","state":"NC","n_total":638,"n_rated":503,"avg_living":3.86,"avg_phys":null,"avg_rent":519.77,"avg_commute":null,"pct_oncampus":62.7,"years":[2022],"living_dist":[22,36,92,194,159],"phys_dist":[0,0,0,0,0],"safety_dist":[2,11,36,327]},{"name":"Samford University","state":"AL","n_total":1691,"n_rated":1632,"avg_living":4.11,"avg_phys":3.91,"avg_rent":969.4,"avg_commute":null,"pct_oncampus":64.58,"years":[2023],"living_dist":[8,74,238,723,589],"phys_dist":[6,147,323,668,488],"safety_dist":[0,0,0,0]},{"name":"Santa Rosa Junior College","state":"CA","n_total":2302,"n_rated":0,"avg_living":null,"avg_phys":null,"avg_rent":919.76,"avg_commute":26.79,"pct_oncampus":0.0,"years":[2020],"living_dist":[0,0,0,0,0],"phys_dist":[0,0,0,0,0],"safety_dist":[0,0,0,0]},{"name":"Springfield College","state":"MA","n_total":728,"n_rated":705,"avg_living":3.86,"avg_phys":null,"avg_rent":658.98,"avg_commute":21.95,"pct_oncampus":78.43,"years":[2019],"living_dist":[7,40,173,313,172],"phys_dist":[0,0,0,0,0],"safety_dist":[0,21,435,249]},{"name":"St. Leo University","state":"FL","n_total":450,"n_rated":447,"avg_living":3.67,"avg_phys":3.58,"avg_rent":674.58,"avg_commute":27.41,"pct_oncampus":83.78,"years":[2020],"living_dist":[13,60,99,163,112],"phys_dist":[8,81,104,150,104],"safety_dist":[0,0,0,0]},{"name":"University of Alabama - Huntsville","state":"AL","n_total":2024,"n_rated":1840,"avg_living":4.2,"avg_phys":4.07,"avg_rent":null,"avg_commute":21.67,"pct_oncampus":22.53,"years":[2023],"living_dist":[12,82,251,670,825],"phys_dist":[7,92,200,466,487],"safety_dist":[0,0,0,0]},{"name":"University of Idaho","state":"ID","n_total":3987,"n_rated":3287,"avg_living":3.78,"avg_phys":3.74,"avg_rent":701.57,"avg_commute":13.72,"pct_oncampus":11.16,"years":[2022,2023,2024],"living_dist":[77,329,734,1248,899],"phys_dist":[30,276,505,1004,537],"safety_dist":[0,0,0,0]},{"name":"University of North Carolina - Pembroke","state":"NC","n_total":928,"n_rated":917,"avg_living":4.02,"avg_phys":null,"avg_rent":558.59,"avg_commute":21.85,"pct_oncampus":50.43,"years":[2019],"living_dist":[8,30,218,342,319],"phys_dist":[0,0,0,0,0],"safety_dist":[9,55,569,275]},{"name":"University of North Carolina - School of the Arts","state":"NC","n_total":293,"n_rated":293,"avg_living":3.79,"avg_phys":null,"avg_rent":477.06,"avg_commute":null,"pct_oncampus":76.11,"years":[2018],"living_dist":[1,16,89,125,62],"phys_dist":[0,0,0,0,0],"safety_dist":[0,8,146,98]},{"name":"Wayne State University","state":"MI","n_total":7704,"n_rated":3483,"avg_living":4.0,"avg_phys":3.36,"avg_rent":518.31,"avg_commute":23.13,"pct_oncampus":27.27,"years":[2019,2022,2023],"living_dist":[44,130,785,1352,1172],"phys_dist":[44,160,171,343,98],"safety_dist":[16,121,2188,1143]}],"meta":{"n_responses":33584,"n_schools":19,"year_min":2018,"year_max":2024,"avg_living":3.91,"avg_phys":3.78,"avg_rent":662.22,"living_labels":["Not Acceptable","Needs Improvement","Acceptable","Good","Very Good"],"safety_labels":["Very Unsafe","Unsafe","Safe","Very Safe"]},"cuts":{"On vs Off Campus":[{"group":"I live off campus","n":12005,"avg":4.1},{"group":"I live on campus","n":10552,"avg":3.7}],"Classification":[{"group":"Researcher","n":39,"avg":4.26},{"group":"Faculty","n":310,"avg":4.22},{"group":"Graduate","n":3492,"avg":4.09},{"group":"Staff","n":780,"avg":4.03},{"group":"Undergrad","n":19105,"avg":3.86},{"group":"High School","n":87,"avg":3.56}],"International Student":[{"group":"No","n":9476,"avg":3.88},{"group":"Yes","n":730,"avg":3.83}],"Student Athlete":[{"group":"No","n":5326,"avg":3.94},{"group":"Yes","n":446,"avg":3.85}],"Shares Bedroom":[{"group":"No","n":6251,"avg":3.93},{"group":"Yes","n":5560,"avg":3.76}],"Enrollment Status":[{"group":"Part Time","n":1412,"avg":4.09},{"group":"Full Time","n":19464,"avg":3.89}],"Greek Affiliated":[{"group":"No","n":1897,"avg":4.14},{"group":"Yes","n":1398,"avg":4.1}],"Class Modality":[{"group":"Completely Remote","n":514,"avg":4.0},{"group":"Hybrid - In Person and Remote","n":6756,"avg":3.86},{"group":"Completely in Person","n":3338,"avg":3.81}]},"scatter":[{"name":"Clark University","rent":628.71,"living":3.66,"n":838},{"name":"Colorado School of Mines","rent":702.36,"living":4.05,"n":1034},{"name":"Duquesne Unviersity","rent":736.66,"living":3.85,"n":1648},{"name":"East Carolina University - Coastal Studies Institute","rent":829.71,"living":4.55,"n":33},{"name":"East Carolina University - Greenville","rent":771.93,"living":3.81,"n":998},{"name":"Eastern Michigan University","rent":653.88,"living":3.86,"n":3580},{"name":"Elizabeth City State Unviersity","rent":770.21,"living":3.43,"n":394},{"name":"Lake Superior State University","rent":394.19,"living":3.63,"n":615},{"name":"Mississippi State University","rent":553.31,"living":3.95,"n":1643},{"name":"North Carolina Central University","rent":519.77,"living":3.86,"n":503},{"name":"Samford University","rent":969.4,"living":4.11,"n":1632},{"name":"Springfield College","rent":658.98,"living":3.86,"n":705},{"name":"St. Leo University","rent":674.58,"living":3.67,"n":447},{"name":"University of Idaho","rent":701.57,"living":3.78,"n":3287},{"name":"University of North Carolina - Pembroke","rent":558.59,"living":4.02,"n":917},{"name":"University of North Carolina - School of the Arts","rent":477.06,"living":3.79,"n":293},{"name":"Wayne State University","rent":518.31,"living":4.0,"n":3483}],"trend":[{"year":2018,"avg":3.87,"n":3010},{"year":2019,"avg":3.99,"n":3534},{"year":2020,"avg":3.93,"n":1481},{"year":2021,"avg":3.9,"n":3291},{"year":2022,"avg":3.78,"n":5628},{"year":2023,"avg":4.03,"n":5116},{"year":2024,"avg":3.83,"n":1830}],"school_detail":{"Clark University":{"on_off":[{"g":"on campus","n":580,"avg":3.59},{"g":"off campus","n":258,"avg":3.81}],"by_class":[{"g":"Undergrad","n":691,"avg":3.67},{"g":"Graduate","n":141,"avg":3.58}],"rent_bands":[{"g":"<$500","n":38,"avg":3.97},{"g":"$500-800","n":156,"avg":3.76},{"g":"$800-1.2k","n":23,"avg":3.57}],"trend":[{"year":2023,"avg":3.66,"n":838}],"phys_link":[{"g":"Not Acceptable","n":18,"avg":1.72},{"g":"Needs Improvement","n":109,"avg":2.52},{"g":"Acceptable","n":225,"avg":3.39},{"g":"Good","n":359,"avg":3.93},{"g":"Very Good","n":126,"avg":4.6}],"good_pct":63.8},"Colorado School of Mines":{"on_off":[{"g":"on campus","n":406,"avg":3.96},{"g":"off campus","n":626,"avg":4.11}],"by_class":[{"g":"Undergrad","n":860,"avg":4.05},{"g":"Graduate","n":169,"avg":4.02}],"rent_bands":[{"g":"<$500","n":58,"avg":4.03},{"g":"$500-800","n":347,"avg":4.08},{"g":"$800-1.2k","n":86,"avg":4.01},{"g":"$1.2k+","n":19,"avg":3.95}],"trend":[{"year":2020,"avg":4.05,"n":1034}],"phys_link":[],"good_pct":76.8},"Duquesne Unviersity":{"on_off":[{"g":"on campus","n":1026,"avg":3.65},{"g":"off campus","n":621,"avg":4.18}],"by_class":[{"g":"Graduate","n":327,"avg":4.18},{"g":"Undergrad","n":1318,"avg":3.77}],"rent_bands":[{"g":"<$500","n":55,"avg":4.11},{"g":"$500-800","n":269,"avg":4.08},{"g":"$800-1.2k","n":97,"avg":4.1},{"g":"$1.2k+","n":33,"avg":4.55}],"trend":[{"year":2021,"avg":3.85,"n":1648}],"phys_link":[{"g":"Not Acceptable","n":13,"avg":1.85},{"g":"Needs Improvement","n":173,"avg":2.54},{"g":"Acceptable","n":322,"avg":3.3},{"g":"Good","n":681,"avg":3.95},{"g":"Very Good","n":458,"avg":4.63}],"good_pct":69.5},"East Carolina University - Greenville":{"on_off":[{"g":"on campus","n":448,"avg":3.63},{"g":"off campus","n":550,"avg":3.96}],"by_class":[{"g":"Undergrad","n":998,"avg":3.81}],"rent_bands":[{"g":"<$500","n":58,"avg":3.66},{"g":"$500-800","n":240,"avg":3.9},{"g":"$800-1.2k","n":107,"avg":3.94},{"g":"$1.2k+","n":31,"avg":3.84}],"trend":[{"year":2022,"avg":3.81,"n":998}],"phys_link":[{"g":"Not Acceptable","n":16,"avg":1.56},{"g":"Needs Improvement","n":114,"avg":2.65},{"g":"Acceptable","n":218,"avg":3.34},{"g":"Good","n":376,"avg":3.92},{"g":"Very Good","n":274,"avg":4.64}],"good_pct":66.8},"Eastern Michigan University":{"on_off":[{"g":"on campus","n":1318,"avg":3.49},{"g":"off campus","n":2258,"avg":4.08}],"by_class":[{"g":"Graduate","n":544,"avg":4.09},{"g":"Undergrad","n":3036,"avg":3.82}],"rent_bands":[{"g":"<$500","n":426,"avg":3.91},{"g":"$500-800","n":574,"avg":3.93},{"g":"$800-1.2k","n":224,"avg":4.04},{"g":"$1.2k+","n":71,"avg":3.87}],"trend":[{"year":2018,"avg":3.95,"n":2102},{"year":2022,"avg":3.73,"n":1478}],"phys_link":[{"g":"Not Acceptable","n":28,"avg":1.5},{"g":"Needs Improvement","n":220,"avg":2.54},{"g":"Acceptable","n":305,"avg":3.3},{"g":"Good","n":515,"avg":3.91},{"g":"Very Good","n":410,"avg":4.6}],"good_pct":66.8},"Elizabeth City State Unviersity":{"on_off":[{"g":"on campus","n":339,"avg":3.32},{"g":"off campus","n":51,"avg":4.2}],"by_class":[{"g":"Undergrad","n":393,"avg":3.43}],"rent_bands":[],"trend":[{"year":2022,"avg":3.43,"n":394}],"phys_link":[{"g":"Needs Improvement","n":80,"avg":2.38},{"g":"Acceptable","n":93,"avg":3.08},{"g":"Good","n":127,"avg":3.75},{"g":"Very Good","n":87,"avg":4.49}],"good_pct":48.5},"Lake Superior State University":{"on_off":[{"g":"on campus","n":381,"avg":3.35},{"g":"off campus","n":227,"avg":4.11}],"by_class":[{"g":"Undergrad","n":615,"avg":3.63}],"rent_bands":[{"g":"<$500","n":165,"avg":3.93},{"g":"$500-800","n":51,"avg":4.12}],"trend":[{"year":2018,"avg":3.63,"n":615}],"phys_link":[],"good_pct":54.5},"Mississippi State University":{"on_off":[{"g":"on campus","n":820,"avg":3.83},{"g":"off campus","n":823,"avg":4.07}],"by_class":[{"g":"Graduate","n":245,"avg":4.15},{"g":"Undergrad","n":1398,"avg":3.91}],"rent_bands":[{"g":"<$500","n":269,"avg":4.03},{"g":"$500-800","n":354,"avg":3.88},{"g":"$800-1.2k","n":54,"avg":4.11}],"trend":[{"year":2021,"avg":3.95,"n":1643}],"phys_link":[{"g":"Needs Improvement","n":163,"avg":2.61},{"g":"Acceptable","n":314,"avg":3.46},{"g":"Good","n":685,"avg":4.02},{"g":"Very Good","n":472,"avg":4.67}],"good_pct":73.3},"North Carolina Central University":{"on_off":[{"g":"on campus","n":375,"avg":3.86},{"g":"off campus","n":128,"avg":3.87}],"by_class":[{"g":"Graduate","n":56,"avg":4.0},{"g":"Undergrad","n":447,"avg":3.84}],"rent_bands":[{"g":"<$500","n":60,"avg":4.07},{"g":"$500-800","n":31,"avg":3.42},{"g":"$800-1.2k","n":19,"avg":3.63},{"g":"$1.2k+","n":18,"avg":4.22}],"trend":[{"year":2022,"avg":3.86,"n":503}],"phys_link":[],"good_pct":70.2},"Samford University":{"on_off":[{"g":"on campus","n":1071,"avg":3.89},{"g":"off campus","n":561,"avg":4.53}],"by_class":[{"g":"Graduate","n":209,"avg":4.42},{"g":"Undergrad","n":1423,"avg":4.06}],"rent_bands":[{"g":"<$500","n":22,"avg":4.55},{"g":"$500-800","n":144,"avg":4.51},{"g":"$800-1.2k","n":189,"avg":4.57},{"g":"$1.2k+","n":94,"avg":4.39}],"trend":[{"year":2023,"avg":4.11,"n":1632}],"phys_link":[{"g":"Needs Improvement","n":147,"avg":2.97},{"g":"Acceptable","n":323,"avg":3.63},{"g":"Good","n":668,"avg":4.14},{"g":"Very Good","n":488,"avg":4.76}],"good_pct":80.4},"Santa Rosa Junior College":{"on_off":[],"by_class":[],"rent_bands":[],"trend":[],"phys_link":[],"good_pct":null},"Springfield College":{"on_off":[{"g":"on campus","n":555,"avg":3.71},{"g":"off campus","n":150,"avg":4.41}],"by_class":[{"g":"Graduate","n":142,"avg":4.08},{"g":"Undergrad","n":563,"avg":3.8}],"rent_bands":[{"g":"<$500","n":21,"avg":4.33},{"g":"$500-800","n":46,"avg":4.11},{"g":"$800-1.2k","n":15,"avg":4.27}],"trend":[{"year":2019,"avg":3.86,"n":705}],"phys_link":[],"good_pct":68.8},"St. Leo University":{"on_off":[{"g":"on campus","n":377,"avg":3.55},{"g":"off campus","n":70,"avg":4.31}],"by_class":[{"g":"Undergrad","n":432,"avg":3.65}],"rent_bands":[],"trend":[{"year":2020,"avg":3.67,"n":447}],"phys_link":[{"g":"Needs Improvement","n":81,"avg":2.58},{"g":"Acceptable","n":104,"avg":3.25},{"g":"Good","n":150,"avg":3.95},{"g":"Very Good","n":104,"avg":4.71}],"good_pct":61.5},"University of Alabama - Huntsville":{"on_off":[{"g":"on campus","n":450,"avg":3.85},{"g":"off campus","n":1342,"avg":4.31}],"by_class":[{"g":"Faculty","n":183,"avg":4.54},{"g":"Researcher","n":38,"avg":4.32},{"g":"Staff","n":360,"avg":4.31},{"g":"Graduate","n":186,"avg":4.27},{"g":"Undergrad","n":1059,"avg":4.09}],"rent_bands":[],"trend":[{"year":2023,"avg":4.2,"n":1840}],"phys_link":[{"g":"Needs Improvement","n":92,"avg":2.66},{"g":"Acceptable","n":200,"avg":3.52},{"g":"Good","n":466,"avg":4.05},{"g":"Very Good","n":487,"avg":4.73}],"good_pct":81.2},"University of Idaho":{"on_off":[{"g":"on campus","n":433,"avg":3.48},{"g":"off campus","n":1597,"avg":3.87}],"by_class":[{"g":"Graduate","n":408,"avg":3.85},{"g":"Staff","n":420,"avg":3.79},{"g":"Undergrad","n":2296,"avg":3.77},{"g":"Faculty","n":126,"avg":3.74},{"g":"Student Hourly Employee","n":23,"avg":3.65}],"rent_bands":[{"g":"<$500","n":415,"avg":3.95},{"g":"$500-800","n":369,"avg":3.76},{"g":"$800-1.2k","n":198,"avg":3.54},{"g":"$1.2k+","n":143,"avg":3.43}],"trend":[{"year":2022,"avg":3.55,"n":651},{"year":2023,"avg":3.86,"n":806},{"year":2024,"avg":3.83,"n":1830}],"phys_link":[{"g":"Not Acceptable","n":30,"avg":1.47},{"g":"Needs Improvement","n":276,"avg":2.64},{"g":"Acceptable","n":505,"avg":3.36},{"g":"Good","n":1004,"avg":3.9},{"g":"Very Good","n":537,"avg":4.62}],"good_pct":65.3},"University of North Carolina - Pembroke":{"on_off":[{"g":"on campus","n":468,"avg":3.89},{"g":"off campus","n":449,"avg":4.15}],"by_class":[{"g":"Graduate","n":62,"avg":4.35},{"g":"Undergrad","n":848,"avg":3.99}],"rent_bands":[{"g":"<$500","n":72,"avg":4.01},{"g":"$500-800","n":166,"avg":3.84},{"g":"$800-1.2k","n":25,"avg":4.24}],"trend":[{"year":2019,"avg":4.02,"n":917}],"phys_link":[],"good_pct":72.1},"University of North Carolina - School of the Arts":{"on_off":[{"g":"on campus","n":223,"avg":3.62},{"g":"off campus","n":70,"avg":4.33}],"by_class":[{"g":"Graduate","n":22,"avg":4.27},{"g":"Undergrad","n":184,"avg":3.84},{"g":"High School","n":87,"avg":3.56}],"rent_bands":[{"g":"<$500","n":31,"avg":4.1},{"g":"$500-800","n":14,"avg":4.29}],"trend":[{"year":2018,"avg":3.79,"n":293}],"phys_link":[],"good_pct":63.8},"Wayne State University":{"on_off":[{"g":"on campus","n":1274,"avg":3.84},{"g":"off campus","n":2205,"avg":4.09}],"by_class":[{"g":"Graduate","n":959,"avg":4.1},{"g":"Undergrad","n":2520,"avg":3.96}],"rent_bands":[{"g":"<$500","n":270,"avg":3.95},{"g":"$500-800","n":372,"avg":3.79},{"g":"$800-1.2k","n":286,"avg":3.95},{"g":"$1.2k+","n":57,"avg":4.09}],"trend":[{"year":2019,"avg":4.03,"n":1912},{"year":2022,"avg":3.96,"n":1571}],"phys_link":[],"good_pct":72.5},"East Carolina University - Coastal Studies Institute":{"on_off":[{"g":"off campus","n":19,"avg":4.58}],"by_class":[{"g":"Undergrad","n":24,"avg":4.79}],"rent_bands":[],"trend":[{"year":2022,"avg":4.55,"n":33}],"phys_link":[],"good_pct":93.9}},"rent_trend":[{"year":2018,"avg":534.0,"n":1231},{"year":2019,"avg":636.0,"n":759},{"year":2020,"avg":849.0,"n":1638},{"year":2021,"avg":627.0,"n":1138},{"year":2022,"avg":752.0,"n":1698},{"year":2023,"avg":575.0,"n":2571},{"year":2024,"avg":638.0,"n":669}]};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const tip=$('#tip');
+const showTip=(h,x,y)=>{tip.innerHTML=h;tip.style.opacity=1;tip.style.left=Math.min(x+12,innerWidth-238)+'px';tip.style.top=(y+12)+'px';};
+const hideTip=()=>tip.style.opacity=0;
+const f=(v,d=2)=>v==null?'—':Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fN=v=>v==null?'—':Number(v).toLocaleString('en-US');
+const fM=v=>v==null?'—':'$'+Number(v).toLocaleString('en-US',{maximumFractionDigits:0});
+
+const METRICS={
+ avg_living:{label:'Living satisfaction',unit:'/5',fmt:v=>f(v,2),max:5,bench:DATA.meta.avg_living,higher:true},
+ avg_phys:{label:'Physical condition',unit:'/5',fmt:v=>f(v,2),max:5,bench:DATA.meta.avg_phys,higher:true},
+ avg_rent:{label:'Rent + utilities',unit:'/mo',fmt:fM,max:null,bench:DATA.meta.avg_rent,higher:false},
+ pct_oncampus:{label:'% on campus',unit:'%',fmt:v=>f(v,1)+'%',max:100,bench:null,higher:true}
+};
+let curM='avg_living';
+
+$('#facts').innerHTML=[
+ [fN(DATA.meta.n_responses),'survey responses'],[DATA.meta.n_schools,'institutions'],
+ [DATA.meta.year_min+'–'+DATA.meta.year_max,'years covered'],[f(DATA.meta.avg_living,2),'avg satisfaction (1–5)'],
+ [fM(DATA.meta.avg_rent),'avg rent + utilities / month']
+].map(([n,l])=>`<div class="fact"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+$('#footMeta').textContent=`${fN(DATA.meta.n_responses)} responses · ${DATA.meta.n_schools} schools · ${DATA.meta.year_min}–${DATA.meta.year_max}`;
+
+const states=[...new Set(DATA.schools.map(s=>s.state).filter(Boolean))].sort();
+states.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;$('#stateFilter').appendChild(o);});
+// school picker
+const byName=Object.fromEntries(DATA.schools.map(s=>[s.name,s]));
+[...DATA.schools].sort((a,b)=>a.name.localeCompare(b.name)).forEach(s=>{
+  const o=document.createElement('option');o.value=s.name;o.textContent=s.name+' ('+s.state+')';$('#schoolPick').appendChild(o);});
+$('#schoolPick').addEventListener('change',e=>{if(e.target.value)openDeep(e.target.value);});
+
+function filtered(){
+  const st=$('#stateFilter').value,mn=+$('#minN').value,q=$('#schoolSearch').value.trim().toLowerCase();
+  return DATA.schools.filter(s=>(!st||s.state===st)&&s.n_total>=mn&&(!q||s.name.toLowerCase().includes(q)));
+}
+
+function renderRank(){
+  const m=METRICS[curM];let rows=filtered().filter(s=>s[curM]!=null);
+  rows.sort((a,b)=>m.higher?b[curM]-a[curM]:a[curM]-b[curM]);
+  const maxv=m.max||Math.max(...rows.map(s=>s[curM]),1)*1.05;
+  $('#rankNote').textContent=`${rows.length} schools · ${m.higher?'highest to lowest':'lowest to highest'} · select a school to open its detail view`;
+  if(m.bench!=null){$('#benchText').textContent=`Industry average ${m.fmt(m.bench)}${m.unit}`;$('#benchline').style.display='flex';}
+  else $('#benchline').style.display='none';
+  if(!rows.length){$('#rankChart').innerHTML='<div class="empty">No schools match these filters.</div>';return;}
+  $('#rankChart').innerHTML=rows.map(s=>{
+    const v=s[curM],w=Math.max(2,v/maxv*100);let flag='';
+    if(m.bench!=null){const ab=v>=m.bench,good=m.higher?ab:!ab;flag=`<span class="flag ${good?'up':'dn'}">${ab?'▲':'▼'}${m.fmt(Math.abs(v-m.bench))}</span>`;}
+    const bp=m.bench!=null?Math.min(100,m.bench/maxv*100):null;
+    return `<div class="bar-row" data-n="${s.name}"><div class="bar-name" title="${s.name}${s.n_rated<100?' - based on only '+fN(s.n_rated)+' rated responses; read with caution':''}">${s.name}<span class="st"> · ${s.state}${s.n_rated<100?' · low sample':''}</span></div>
+     <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div>${bp!=null?`<div style="position:absolute;top:-2px;bottom:-2px;left:${bp}%;border-left:2px dashed var(--bench)"></div>`:''}</div>
+     <div class="bar-val">${m.fmt(v)}${flag}</div></div>`;}).join('');
+  $$('.bar-row').forEach(r=>{r.addEventListener('click',()=>openDeep(r.dataset.n));
+    r.addEventListener('mousemove',e=>{const s=byName[r.dataset.n];showTip(`<b>${s.name}</b><br>${fN(s.n_total)} responses<br>Living ${f(s.avg_living,2)} · Phys ${f(s.avg_phys,2)}<br>Rent ${fM(s.avg_rent)} · ${f(s.pct_oncampus,0)}% on campus<br><i>click for deep dive</i>`,e.clientX,e.clientY);});
+    r.addEventListener('mouseleave',hideTip);});
+}
+
+function renderDist(){
+  const L=DATA.meta.living_labels;
+  const rows=filtered().filter(s=>s.living_dist.reduce((a,b)=>a+b,0)>0).sort((a,b)=>b.avg_living-a.avg_living);
+  if(!rows.length){$('#distGrid').innerHTML='<div class="empty">No schools match these filters.</div>';return;}
+  $('#distGrid').innerHTML=rows.map(s=>{
+    const tot=s.living_dist.reduce((a,b)=>a+b,0);
+    const segs=s.living_dist.map((c,i)=>{const p=tot?c/tot*100:0;return p>0?`<div class="seg s${i}" style="width:${p}%"></div>`:'';}).join('');
+    const good=tot?((s.living_dist[3]+s.living_dist[4])/tot*100):0;
+    return `<div class="card" data-n="${s.name}"><h3>${s.name}</h3>
+     <div class="csub">${fN(tot)} rated · ${good.toFixed(0)}% rated Good or Very Good · avg rating ${f(s.avg_living,2)}/5</div>
+     <div class="stack">${segs}</div>
+     <div class="legend"><span><i class="s4"></i>Very Good</span><span><i class="s3"></i>Good</span><span><i class="s2"></i>Acceptable</span><span><i class="s1"></i>Needs Impr.</span><span><i class="s0"></i>Not Accept.</span></div></div>`;
+  }).join('');
+  $$('#distGrid .card').forEach(c=>c.addEventListener('click',()=>openDeep(c.dataset.n)));
+}
+
+function renderCuts(){
+  const w=$('#cutGrid');w.innerHTML='';
+  Object.entries(DATA.cuts).forEach(([t,rows])=>{
+    if(!rows||!rows.length)return;
+    const body=rows.map(r=>{const wd=r.avg/5*100;let c=r.group.replace(/^I /,'').replace(/ campus$/,'');c=c.replace(/\blive off\b/i,'Live Off Campus').replace(/\blive on\b/i,'Live On Campus');
+      return `<div class="crow" title="${r.group}: ${f(r.avg,2)} · ${fN(r.n)} resp"><div class="cn">${c}</div><div class="ct"><div class="cf" style="width:${wd}%"></div></div><div class="cv">${f(r.avg,2)}</div></div>`;}).join('');
+    const d=document.createElement('div');d.className='cut';d.innerHTML=`<h4>${t}<span>1–5 scale</span></h4>${body}`;w.appendChild(d);
+  });
+}
+
+function renderScatter(){
+  const pts=DATA.scatter.filter(p=>p.rent&&p.living);const W=900,H=380,pad={l:54,r:24,t:18,b:52};
+  const xs=pts.map(p=>p.rent),ys=pts.map(p=>p.living);
+  const xmin=Math.min(...xs)*.92,xmax=Math.max(...xs)*1.04,ymin=Math.min(...ys)-.2,ymax=Math.max(...ys)+.2;
+  const X=v=>pad.l+(v-xmin)/(xmax-xmin)*(W-pad.l-pad.r),Y=v=>H-pad.b-(v-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  let g='';
+  for(let i=0;i<=4;i++){const yv=ymin+(ymax-ymin)*i/4,y=Y(yv);g+=`<line class="gridline" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="axlab" x="${pad.l-7}" y="${y+3}" text-anchor="end">${yv.toFixed(1)}</text>`;}
+  for(let i=0;i<=4;i++){const xv=xmin+(xmax-xmin)*i/4,x=X(xv);g+=`<line class="gridline" x1="${x}" y1="${pad.t}" x2="${x}" y2="${H-pad.b}"/><text class="axlab" x="${x}" y="${H-pad.b+17}" text-anchor="middle">$${Math.round(xv).toLocaleString('en-US')}</text>`;}
+  pts.forEach(p=>{const r=Math.min(4+Math.sqrt(p.n)/8,14);g+=`<circle class="dot" cx="${X(p.rent)}" cy="${Y(p.living)}" r="${r}" data-n="${p.name}" data-r="${p.rent}" data-l="${p.living}" data-c="${p.n}"/>`;});
+  g+=`<text class="axtitle" x="${pad.l+(W-pad.l-pad.r)/2}" y="${H-8}" text-anchor="middle">Average rent + utilities ($/month)</text><text class="axtitle" transform="rotate(-90 14 ${pad.t+(H-pad.t-pad.b)/2})" x="14" y="${pad.t+(H-pad.t-pad.b)/2}" text-anchor="middle">Avg living-situation rating (1-5)</text>`;
+  $('#scatterPanel').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+  $$('#scatterPanel .dot').forEach(d=>{d.addEventListener('click',()=>openDeep(d.dataset.n));
+    d.addEventListener('mousemove',e=>showTip(`<b>${d.dataset.n}</b><br>Rent ${fM(+d.dataset.r)}/mo · rating ${f(+d.dataset.l,2)}/5<br>${fN(+d.dataset.c)} responses<br><i>select to open detail</i>`,e.clientX,e.clientY));
+    d.addEventListener('mouseleave',hideTip);});
+}
+
+// Shared line-trend renderer so satisfaction and rent charts look identical
+function lineTrend(sel,pts,opts){
+  const W=920,H=320,pad={l:64,r:34,t:34,b:42};
+  const vals=pts.map(p=>p.avg);
+  let ymin,ymax;
+  if(opts.ymin!=null){ymin=opts.ymin;ymax=opts.ymax;}
+  else{const lo=Math.min(...vals),hi=Math.max(...vals),padv=(hi-lo)*0.55||1;ymin=lo-padv;ymax=hi+padv;}
+  const X=i=>pad.l+i/(pts.length-1)*(W-pad.l-pad.r),Y=v=>H-pad.b-(v-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  let g='';
+  // horizontal gridlines + y tick labels
+  const ticks=[];
+  for(let i=0;i<=4;i++){const yv=ymin+(ymax-ymin)*i/4,y=Y(yv);ticks.push(y);
+    g+=`<line class="gridline" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="axlab" x="${pad.l-9}" y="${y+3.5}" text-anchor="end">${opts.yfmt(yv)}</text>`;}
+  g+=`<polygon class="tarea" points="${pts.map((p,i)=>`${X(i)},${Y(p.avg)}`).join(' ')} ${X(pts.length-1)},${H-pad.b} ${X(0)},${H-pad.b}"/>`;
+  g+=`<polyline class="tline" points="${pts.map((p,i)=>`${X(i)},${Y(p.avg)}`).join(' ')}"/>`;
+  pts.forEach((p,i)=>{
+    const cx=X(i),cy=Y(p.avg);
+    // x-axis year label
+    g+=`<circle class="tdot" cx="${cx}" cy="${cy}" r="4.5" data-i="${i}"/><text class="axlab" x="${cx}" y="${H-pad.b+18}" text-anchor="middle">${p.year}</text>`;
+    // point label: place above the point by default; if too close to top, place below;
+    // anchor start on first point and end on last point so it never runs into the y-axis or past the right edge
+    const above = cy - 16 > pad.t;
+    const ly = above ? cy-11 : cy+17;
+    let anchor='middle', lx=cx;
+    if(i===0){anchor='start'; lx=cx+2;}
+    else if(i===pts.length-1){anchor='end'; lx=cx-2;}
+    g+=`<text class="ptlab" x="${lx}" y="${ly}" text-anchor="${anchor}">${opts.plab(p.avg)}</text>`;
+  });
+  $(sel).innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+  $$(sel+' .tdot').forEach(d=>{const p=pts[+d.dataset.i];
+    d.addEventListener('mousemove',e=>showTip(`<b>${p.year}</b><br>${opts.tip(p)}<br>${fN(p.n)} responses`,e.clientX,e.clientY));
+    d.addEventListener('mouseleave',hideTip);});
+}
+function renderTrend(){
+  lineTrend('#trendPanel',DATA.trend,{ymin:3.45,ymax:4.25,yfmt:v=>v.toFixed(1),plab:v=>v.toFixed(2),tip:p=>`Avg rating ${f(p.avg,2)}/5`});
+}
+function renderRentTrend(){
+  if(!DATA.rent_trend)return;
+  lineTrend('#rentTrendPanel',DATA.rent_trend,{yfmt:v=>'$'+Math.round(v).toLocaleString('en-US'),plab:v=>'$'+Math.round(v).toLocaleString('en-US'),tip:p=>`Avg rent ${fM(p.avg)}/mo`});
+}
+
+// ---- DEEP DIVE ----
+function miniBars(rows,color,maxv){
+  if(!rows||!rows.length)return '<div style="font-size:11.5px;color:var(--ink-2)">Not enough data for this school.</div>';
+  return rows.map(r=>{const w=r.avg/(maxv||5)*100;
+    return `<div class="minibar" title="${r.g}: ${f(r.avg,2)} · ${fN(r.n)} resp"><div class="mn">${r.g}</div><div class="mt"><div class="mf" style="width:${w}%;background:${color}"></div></div><div class="mv">${f(r.avg,2)}</div></div>`;}).join('');
+}
+function sparkline(trend){
+  if(!trend||trend.length<2)return '<div style="font-size:11.5px;color:var(--ink-2)">Single year of data.</div>';
+  const W=460,H=150,pad={l:34,r:16,t:18,b:28};
+  const lo=Math.min(...trend.map(t=>t.avg)),hi=Math.max(...trend.map(t=>t.avg)),pv=(hi-lo)*0.4||0.3,ymin=lo-pv,ymax=hi+pv;
+  const X=i=>pad.l+i/(trend.length-1)*(W-pad.l-pad.r),Y=v=>H-pad.b-(v-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  let g='';
+  for(let i=0;i<=2;i++){const yv=ymin+(ymax-ymin)*i/2,y=Y(yv);g+=`<line class="gridline" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="axlab" x="${pad.l-6}" y="${y+3}" text-anchor="end">${yv.toFixed(1)}</text>`;}
+  g+=`<polyline class="tline" points="${trend.map((p,i)=>`${X(i)},${Y(p.avg)}`).join(' ')}"/>`;
+  trend.forEach((p,i)=>{g+=`<circle class="tdot" cx="${X(i)}" cy="${Y(p.avg)}" r="3.5"/><text class="axlab" x="${X(i)}" y="${H-9}" text-anchor="middle">${p.year}</text><text class="ptlab" x="${X(i)}" y="${Y(p.avg)-8}" text-anchor="middle">${p.avg.toFixed(2)}</text>`;});
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+}
+function openDeep(name){
+  const s=byName[name],d=DATA.school_detail[name];if(!s)return;
+  $('#ddTitle').textContent=s.name;
+  $('#ddSub').textContent=`${s.state} · ${fN(s.n_total)} responses · ${s.years.join(', ')}`;
+  const vs=v=>v==null?null:(v-DATA.meta.avg_living);
+  $('#ddKpis').innerHTML=[
+    [f(s.avg_living,2),'Living (1–5)',true],[f(s.avg_phys,2),'Phys condition',false],
+    [fM(s.avg_rent),'Rent + util/mo',false],[s.pct_oncampus!=null?f(s.pct_oncampus,0)+'%':'—','On campus',false],
+    [d.good_pct!=null?d.good_pct+'%':'—','Good or better',false],[fN(s.n_rated),'Rated responses',false]
+  ].map(([n,l,hi])=>`<div class="kpi"><div class="n ${hi?'':'muted'}">${n}</div><div class="l">${l}</div></div>`).join('');
+  // takeaway
+  const diff=s.avg_living-DATA.meta.avg_living;
+  const dir=diff>=0?'above':'below';
+  let phys='';
+  if(d.phys_link&&d.phys_link.length>=2){const lo=d.phys_link[0].avg,hi=d.phys_link[d.phys_link.length-1].avg;phys=` Students who rate the building's condition highest report satisfaction of ${f(hi,2)}, versus ${f(lo,2)} for the lowest, the strongest pattern in the data.`;}
+  $('#ddTake').innerHTML=`<b>${s.name}</b> sits ${f(Math.abs(diff),2)} points ${dir} the ${f(DATA.meta.avg_living,2)} industry average for living satisfaction.${phys}`;
+  $('#ddPhys').innerHTML=miniBars(d.phys_link,'var(--teal)',5);
+  $('#ddOnOff').innerHTML=miniBars(d.on_off,'var(--rja)',5);
+  $('#ddClass').innerHTML=miniBars(d.by_class,'var(--rja)',5);
+  $('#ddRent').innerHTML=miniBars(d.rent_bands,'var(--teal)',5);
+  $('#ddTrend').innerHTML=sparkline(d.trend);
+  $('#overlay').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeDeep(){$('#overlay').classList.remove('open');document.body.style.overflow='';$('#schoolPick').value='';}
+$('#ddClose').addEventListener('click',closeDeep);
+$('#overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeDeep();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDeep();});
+
+function renderAll(){renderRank();renderDist();}
+$$('#tabs button').forEach(b=>b.addEventListener('click',()=>{$$('#tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');curM=b.dataset.m;renderRank();}));
+['#stateFilter','#minN'].forEach(s=>$(s).addEventListener('change',renderAll));
+$('#schoolSearch').addEventListener('input',renderAll);
+
+// ---- COMPARE MODE ----
+const CMP_COLORS=['#2D9CDB','#27AE60','#F2994A','#9B51E0','#EB5757','#00BFA6'];
+let cmpSel=[];
+const cmpSelEl=document.querySelector('#cmpAdd');
+[...DATA.schools].sort((a,b)=>a.name.localeCompare(b.name)).forEach(s=>{
+  const o=document.createElement('option');o.value=s.name;o.textContent=s.name+' ('+s.state+')';cmpSelEl.appendChild(o);
+});
+cmpSelEl.addEventListener('change',e=>{const v=e.target.value;if(v&&!cmpSel.includes(v)&&cmpSel.length<6){cmpSel.push(v);renderCompare();}e.target.value='';});
+document.querySelector('#cmpClear').addEventListener('click',()=>{cmpSel=[];renderCompare();});
+
+function cmpColor(i){return CMP_COLORS[i%CMP_COLORS.length];}
+function renderCompare(){
+  const chips=document.querySelector('#cmpChips'),body=document.querySelector('#cmpBody'),hint=document.querySelector('#cmpHint');
+  chips.innerHTML=cmpSel.map((n,i)=>`<div class="chip"><span class="dot" style="background:${cmpColor(i)}"></span>${n}<button data-n="${n}" aria-label="remove">×</button></div>`).join('');
+  chips.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{cmpSel=cmpSel.filter(x=>x!==b.dataset.n);renderCompare();}));
+  hint.textContent = cmpSel.length? `${cmpSel.length} of 6 selected` : 'Add schools to build a side by side comparison.';
+  if(cmpSel.length<2){body.innerHTML='<div class="cmp-empty">Pick at least two schools to compare them side by side.</div>';return;}
+  const rows=cmpSel.map(n=>byName[n]);
+  const det=cmpSel.map(n=>DATA.school_detail[n]);
+
+  // ---- auto insight line ----
+  const liv=rows.map(r=>({n:r.name,v:r.avg_living})).filter(o=>o.v!=null).sort((a,b)=>b.v-a.v);
+  const rent=rows.map(r=>({n:r.name,v:r.avg_rent})).filter(o=>o.v!=null).sort((a,b)=>a.v-b.v);
+  let insight='';
+  if(liv.length>=2){
+    const gap=(liv[0].v-liv[liv.length-1].v).toFixed(2);
+    insight=`<b>${liv[0].n}</b> leads on living satisfaction at ${f(liv[0].v,2)}, ${gap} points ahead of <b>${liv[liv.length-1].n}</b>.`;
+    if(rent.length>=2 && rent[0].n!==liv[0].n) insight+=` <b>${rent[0].n}</b> is the most affordable at ${fM(rent[0].v)}/mo.`;
+  }
+
+  // ---- metric bars ----
+  const metrics=[
+    {k:'avg_living',label:'Living satisfaction',unit:'/5',fmt:v=>f(v,2),max:5,higher:true},
+    {k:'avg_phys',label:'Physical condition',unit:'/5',fmt:v=>f(v,2),max:5,higher:true},
+    {k:'avg_rent',label:'Rent + utilities',unit:'/mo',fmt:fM,max:Math.max(...rows.map(r=>r.avg_rent||0))*1.1||1,higher:false},
+    {k:'avg_commute',label:'Avg commute (min)',unit:'',fmt:v=>f(v,0),max:Math.max(...rows.map(r=>r.avg_commute||0))*1.1||1,higher:false},
+    {k:'pct_oncampus',label:'Live on campus',unit:'%',fmt:v=>f(v,0)+'%',max:100,higher:true}
+  ];
+  let bars='';
+  metrics.forEach(m=>{
+    const vals=rows.map(r=>r[m.k]).filter(v=>v!=null);
+    if(!vals.length)return;
+    const best=m.higher?Math.max(...vals):Math.min(...vals);
+    bars+=`<div class="cmp-metric"><h4>${m.label}<span>${m.higher?'higher is better':'lower is better'}</span></h4>`;
+    rows.forEach((r,i)=>{const v=r[m.k];if(v==null){bars+=`<div class="cmp-bar"><div class="nm">${r.name}</div><div class="tk"></div><div class="vl">—</div></div>`;return;}
+      const w=Math.max(2,v/m.max*100);const isBest=v===best;
+      bars+=`<div class="cmp-bar"><div class="nm" title="${r.name}">${r.name}</div><div class="tk"><div class="fl" style="width:${w}%;background:${cmpColor(i)}"></div></div><div class="vl" style="color:${isBest?'var(--pos)':'inherit'};font-weight:${isBest?700:600}">${m.fmt(v)}${isBest?' ★':''}</div></div>`;});
+    bars+='</div>';
+  });
+
+  // ---- side-by-side satisfaction distributions ----
+  const L=DATA.meta.living_labels;
+  let dist='<div class="cmp-sub"><h4>Living-situation rating mix</h4><div class="cmp-note" style="margin:-4px 0 12px">Distribution of answers to "How would you rate your current living situation?" (1 = Not Acceptable to 5 = Very Good).</div><div class="cmp-dist-grid">';
+  rows.forEach((r,i)=>{
+    const tot=r.living_dist.reduce((a,b)=>a+b,0);
+    const segs=r.living_dist.map((c,k)=>{const p=tot?c/tot*100:0;return p>0?`<div class="seg s${k}" style="width:${p}%" title="${L[k]}: ${p.toFixed(0)}%"></div>`:'';}).join('');
+    const good=tot?Math.round((r.living_dist[3]+r.living_dist[4])/tot*100):0;
+    dist+=`<div class="cmp-dist"><div class="cmp-dist-lbl"><span class="dot" style="background:${cmpColor(i)}"></span>${r.name}<b>${good}% Good or Very Good</b></div><div class="stack">${segs}</div></div>`;
+  });
+  dist+='</div><div class="legend"><span><i class="s4"></i>Very Good</span><span><i class="s3"></i>Good</span><span><i class="s2"></i>Acceptable</span><span><i class="s1"></i>Needs Impr.</span><span><i class="s0"></i>Not Accept.</span></div></div>';
+
+  // ---- overlaid year-trend lines ----
+  let trendSvg='';
+  const withTrend=det.map((d,idx)=>({idx,name:rows[idx].name,tr:(d.trend||[]).filter(t=>t.avg!=null).sort((a,b)=>a.year-b.year)}))
+                     .filter(o=>o.tr.length>=1);
+  const multiYear=withTrend.filter(o=>o.tr.length>=2);
+  const allYears=[...new Set(withTrend.flatMap(o=>o.tr.map(t=>t.year)))].sort();
+  if(multiYear.length>=1 && allYears.length>=2){
+    const W=900,H=300,pad={l:56,r:24,t:22,b:40};
+    const allAvgs=withTrend.flatMap(o=>o.tr.map(t=>t.avg));
+    const lo=Math.min(...allAvgs),hi=Math.max(...allAvgs),pv=(hi-lo)*0.35||0.3,ymin=lo-pv,ymax=hi+pv;
+    const X=y=>pad.l+(allYears.indexOf(y))/(allYears.length-1)*(W-pad.l-pad.r);
+    const Y=v=>H-pad.b-(v-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+    let g='';
+    for(let k=0;k<=4;k++){const yv=ymin+(ymax-ymin)*k/4,y=Y(yv);g+=`<line class="gridline" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="axlab" x="${pad.l-6}" y="${y+3}" text-anchor="end">${yv.toFixed(1)}</text>`;}
+    allYears.forEach(yr=>g+=`<text class="axlab" x="${X(yr)}" y="${H-pad.b+17}" text-anchor="middle">${yr}</text>`);
+    withTrend.forEach(o=>{const col=cmpColor(o.idx);
+      if(o.tr.length>=2){
+        g+=`<polyline fill="none" stroke="${col}" stroke-width="2.4" points="${o.tr.map(t=>`${X(t.year)},${Y(t.avg)}`).join(' ')}"/>`;
+      }
+      o.tr.forEach(t=>g+=`<circle cx="${X(t.year)}" cy="${Y(t.avg)}" r="4" fill="${col}"/>`);
+    });
+    // legend
+    let leg='<div class="cmp-trend-leg">'+withTrend.map(o=>`<span><i style="background:${cmpColor(o.idx)}"></i>${o.name}${o.tr.length<2?' (one year)':''}</span>`).join('')+'</div>';
+    const singleNote = multiYear.length<withTrend.length? '<div class="cmp-note">Schools with a single survey year appear as one point, not a line.</div>':'';
+    trendSvg=`<div class="cmp-sub"><h4>Living-situation rating over time</h4>${leg}<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>${singleNote}</div>`;
+  } else {
+    // Not enough multi-year data to draw a trend
+    const yrInfo=withTrend.map(o=>`${o.name} (${o.tr.map(t=>t.year).join(', ')||'no year data'})`).join('; ');
+    trendSvg=`<div class="cmp-sub"><h4>Living-situation rating over time</h4><div class="cmp-empty" style="padding:20px">A year-over-year trend needs at least one of the selected schools to have been surveyed in two or more years. The current selection does not. Survey years: ${yrInfo||'none recorded'}.</div></div>`;
+  }
+
+  // ---- building-condition driver comparison ----
+  let driver='';
+  const haveDriver=det.filter(d=>d.phys_link&&d.phys_link.length>=2);
+  if(haveDriver.length>=2){
+    const order=['Not Acceptable','Needs Improvement','Acceptable','Good','Very Good'];
+    let g='<div class="cmp-sub"><h4>How building condition drives satisfaction</h4><table class="cmp-table"><thead><tr><th>Building condition</th>'+rows.map((r,i)=>`<th style="border-top:3px solid ${cmpColor(i)}">${r.name}</th>`).join('')+'</tr></thead><tbody>';
+    order.forEach(cond=>{
+      g+=`<tr><td>${cond}</td>`+det.map(d=>{const row=(d.phys_link||[]).find(p=>p.g===cond);return `<td>${row?f(row.avg,2):'—'}</td>`;}).join('')+'</tr>';
+    });
+    g+='</tbody></table><div class="cmp-note">Across schools, satisfaction climbs steeply with building condition. This is the strongest lever in the data.</div></div>';
+    driver=g;
+  }
+
+  // ---- full comparison table ----
+  const tblRows=[
+    ['Responses',r=>fN(r.n_total),false],
+    ['Rated responses',r=>fN(r.n_rated),false],
+    ['Living satisfaction (1-5)',r=>f(r.avg_living,2),'avg_living','hi'],
+    ['Physical condition (1-5)',r=>f(r.avg_phys,2),'avg_phys','hi'],
+    ['Rent + utilities',r=>fM(r.avg_rent),'avg_rent','lo'],
+    ['Avg commute (min)',r=>r.avg_commute!=null?f(r.avg_commute,0):'—','avg_commute','lo'],
+    ['% on campus',r=>r.pct_oncampus!=null?f(r.pct_oncampus,0)+'%':'—',false],
+    ['% rated Good or Very Good',r=>{const t=r.living_dist.reduce((a,b)=>a+b,0);return t?Math.round((r.living_dist[3]+r.living_dist[4])/t*100)+'%':'—';},false],
+    ['Years',r=>r.years.join(', '),false],
+    ['State',r=>r.state,false],
+  ];
+  let tbl='<div class="cmp-sub"><h4>Full comparison</h4><table class="cmp-table"><thead><tr><th>Metric</th>'+rows.map((r,i)=>`<th style="border-top:3px solid ${cmpColor(i)}">${r.name}</th>`).join('')+'</tr></thead><tbody>';
+  tblRows.forEach(([label,fn,key,dir])=>{
+    let bestVal=null;
+    if(key){const vs=rows.map(r=>r[key]).filter(v=>v!=null);if(vs.length)bestVal=dir==='lo'?Math.min(...vs):Math.max(...vs);}
+    tbl+=`<tr><td>${label}</td>`+rows.map(r=>{const disp=fn(r);const hit=key&&r[key]!=null&&r[key]===bestVal;return `<td class="${hit?'cmp-best':''}">${disp}</td>`;}).join('')+'</tr>';
+  });
+  tbl+='</tbody></table></div>';
+
+  body.innerHTML=(insight?`<div class="cmp-insight">${insight}</div>`:'')+bars+dist+trendSvg+driver+tbl;
+}
+renderCompare();
+
+renderAll();renderCuts();renderScatter();renderTrend();renderRentTrend();
+</script></body></html>
